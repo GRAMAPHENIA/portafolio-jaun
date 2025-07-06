@@ -3,13 +3,13 @@ import { projects } from "@/data/projects"
 
 export function ProjectGrid() {
   return (
-    <section id="proyectos" className="py-32">
+    <section id="proyectos" className="pb-24">
       <div className="container mx-auto px-4">
         <div className="mb-20">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-8 h-px bg-muted-foreground/30"></div>
             <span className="font-body text-sm text-muted-foreground uppercase tracking-wider">
-              Proyectos Destacados
+              Estados
             </span>
           </div>
           <h2 className="font-heading text-4xl font-light">Proyectos</h2>

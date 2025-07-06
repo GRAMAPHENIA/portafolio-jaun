@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { Hero } from "@/components/sections/hero"
 import { ProjectGrid } from "@/components/projects/project-grid"
+import { TestimonialSection } from "@/components/sections/testimonial"
 
 export default function HomePage() {
   return (
@@ -10,6 +11,7 @@ export default function HomePage() {
       <main>
         <Hero />
         <ProjectGrid />
+        <TestimonialSection />
       </main>
       <Footer />
     </div>
