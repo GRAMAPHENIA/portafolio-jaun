@@ -53,10 +53,10 @@ export const projects: Project[] = [
   },
   {
     id: "6",
-    title: "Fitness Tracker",
+    title: "registros-de-consolas-de-umbral",
     description:
-      "Aplicación de seguimiento fitness con planes personalizados y métricas detalladas.",
-    image: "/placeholder.svg?height=300&width=400",
+      "Aplicación de seguimiento de registros de consolas de umbral con análisis detallados.",
+    image: "/proyects/registro-de-consolas-de-umbral.png",
     technologies: ["React Native", "Firebase", "HealthKit"],
     url: "https://example.com",
     github: "https://github.com/example/fitness",

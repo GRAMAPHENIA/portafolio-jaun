@@ -10,7 +10,7 @@ export function TestimonialSection({ className }: TestimonialProps) {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-light mb-12 text-foreground/90">
-            Lo dice
+            Dice
           </h2>
           
           <div className="relative">
