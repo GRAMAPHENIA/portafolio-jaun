@@ -106,3 +106,81 @@ export interface SocialLink {
   href: string
   label: string
 }
+
+// Skills and Experience Types
+export interface Skill {
+  id: string
+  name: string
+  level: number // 1-100
+  category: SkillCategory
+  icon?: string
+  color?: string
+  yearsOfExperience: number
+  projects?: string[] // Project IDs
+  description?: string
+}
+
+export interface Experience {
+  id: string
+  company: string
+  position: string
+  startDate: Date
+  endDate?: Date
+  description: string
+  achievements: string[]
+  technologies: string[]
+  logo?: string
+  location?: string
+  type: ExperienceType
+  website?: string
+}
+
+export interface Education {
+  id: string
+  institution: string
+  degree: string
+  field: string
+  startDate: Date
+  endDate?: Date
+  description?: string
+  achievements?: string[]
+  logo?: string
+  location?: string
+}
+
+export type SkillCategory = 
+  | "frontend"
+  | "backend"
+  | "database"
+  | "tools"
+  | "design"
+  | "soft-skills"
+  | "languages"
+
+export type ExperienceType = 
+  | "full-time"
+  | "part-time"
+  | "freelance"
+  | "contract"
+  | "internship"
+
+export interface SkillFilter {
+  categories: SkillCategory[]
+  minLevel?: number
+  search?: string
+}
+
+export interface CVFormat {
+  id: string
+  name: string
+  description: string
+  template: "developer" | "executive" | "creative"
+  sections: CVSection[]
+}
+
+export interface CVSection {
+  id: string
+  name: string
+  enabled: boolean
+  order: number
+}

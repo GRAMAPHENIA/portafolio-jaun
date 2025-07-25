@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Home, FolderOpen, Mail, Menu, X } from "lucide-react";
+import { Home, FolderOpen, Mail, Menu, X, FileText } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
   href: string;
   label: string;
+  external?: boolean;
 };
 
 const navItems: NavItem[] = [
   { icon: Home, href: "#inicio", label: "Inicio" },
   { icon: FolderOpen, href: "#proyectos", label: "Proyectos" },
+  { icon: FileText, href: "/cv", label: "CV", external: true },
   { icon: Mail, href: "#contacto", label: "Contacto" },
 ];
 
@@ -86,7 +88,13 @@ export function Header() {
     };
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, external?: boolean) => {
+    // Si es un enlace externo, permitir navegación normal
+    if (external) {
+      setIsMenuOpen(false);
+      return;
+    }
+
     e.preventDefault();
     const sectionId = href.replace("#", "");
 
@@ -126,13 +134,13 @@ export function Header() {
 
           {/* Navegación de escritorio */}
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map(({ icon: Icon, href, label }) => {
-              const isActive = activeSection === href.replace("#", "");
+            {navItems.map(({ icon: Icon, href, label, external }) => {
+              const isActive = !external && activeSection === href.replace("#", "");
               return (
                 <a
                   key={href}
                   href={href}
-                  onClick={(e) => handleNavClick(e, href)}
+                  onClick={(e) => handleNavClick(e, href, external)}
                   className={`p-2.5 rounded-lg transition-colors ${isActive
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground/90"
@@ -178,13 +186,13 @@ export function Header() {
             className="md:hidden mt-3 pt-3 border-t border-border/30"
           >
             <nav className="flex flex-col gap-1">
-              {navItems.map(({ icon: Icon, href, label }) => {
-                const isActive = activeSection === href.replace("#", "");
+              {navItems.map(({ icon: Icon, href, label, external }) => {
+                const isActive = !external && activeSection === href.replace("#", "");
                 return (
                   <a
                     key={href}
                     href={href}
-                    onClick={(e) => handleNavClick(e, href)}
+                    onClick={(e) => handleNavClick(e, href, external)}
                     className={`flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm ${isActive
                         ? "text-foreground font-medium"
                         : "text-muted-foreground hover:text-foreground/90"
