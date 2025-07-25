@@ -1,13 +1,14 @@
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, Eye } from "lucide-react";
 import type { Project } from "@/lib/types";
 import { getTechIcon } from "@/lib/tech-icons";
 
 interface ProjectCardProps {
   project: Project;
   className?: string;
+  onViewDetails?: (project: Project) => void;
 }
 
-export function ProjectCard({ project, className = "" }: ProjectCardProps) {
+export function ProjectCard({ project, className = "", onViewDetails }: ProjectCardProps) {
   const isLarge = className.includes("row-span-2");
 
   return (
@@ -70,6 +71,16 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
         </div>
 
         <div className="flex items-center gap-3">
+          {onViewDetails && (
+            <button
+              onClick={() => onViewDetails(project)}
+              className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-full font-body text-sm font-medium hover:bg-accent/80 transition-colors duration-200"
+            >
+              <Eye className="w-3 h-3" />
+              {isLarge && "Ver Detalles"}
+            </button>
+          )}
+          
           <a
             href={project.url}
             target="_blank"

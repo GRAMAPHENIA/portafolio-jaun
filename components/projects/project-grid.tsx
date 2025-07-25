@@ -1,7 +1,24 @@
+"use client"
+
+import { useState } from "react"
 import { ProjectCard } from "./project-card"
+import { ProjectModal } from "./project-modal"
 import { projects } from "@/data/projects"
+import type { Project } from "@/lib/types"
 
 export function ProjectGrid() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleViewDetails = (project: Project) => {
+    setSelectedProject(project)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedProject(null)
+  }
   return (
     <section id="proyectos" className="pb-24">
       <div className="container mx-auto px-4">
@@ -17,10 +34,21 @@ export function ProjectGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 max-w-7xl mx-auto">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} className={getGridItemClass(index)} />
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              className={getGridItemClass(index)}
+              onViewDetails={handleViewDetails}
+            />
           ))}
         </div>
       </div>
+
+      <ProjectModal
+        project={selectedProject}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </section>
   )
 }

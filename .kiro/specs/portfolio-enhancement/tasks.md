@@ -43,8 +43,13 @@
     - Create theme toggle animation
     - _Requirements: 1.1, 1.3_
 
-- [ ] 3. Implement enhanced project system with detailed views
+- [-] 3. Implement enhanced project system with detailed views
+
+
+
   - [ ] 3.1 Create project modal with gallery and detailed information
+
+
     - Build modal component with image carousel
     - Add project metrics display (Lighthouse scores)
     - Implement technology stack visualization
