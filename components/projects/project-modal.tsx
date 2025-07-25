@@ -1,11 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, ExternalLink, Github, ChevronLeft, ChevronRight } from "lucide-react"
+import { 
+  X, 
+  ExternalLink, 
+  Github, 
+  ChevronLeft, 
+  ChevronRight
+} from "lucide-react"
 import type { Project } from "@/lib/types"
 import { getTechIcon } from "@/lib/tech-icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface ProjectModalProps {
   project: Project | null
@@ -55,23 +63,41 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
   }
 
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-300 ${
-          isOpen ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
+  const getMetricColor = (score: number) => {
+    if (score >= 90) return "text-green-600"
+    if (score >= 70) return "text-yellow-600"
+    return "text-red-600"
+  }
 
-      {/* Modal */}
-      <div
-        className={`fixed inset-4 md:inset-8 lg:inset-16 bg-background border border-border rounded-2xl z-50 overflow-hidden transition-all duration-300 ${
-          isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-5'
-        }`}
-      >
-        <div className="h-full flex flex-col">
+  const getMetricIcon = (type: string) => {
+    switch (type) {
+      case 'performance': return Gauge
+      case 'accessibility': return Eye
+      case 'seo': return Search
+      case 'bestPractices': return Zap
+      default: return Gauge
+    }
+  }
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date)
+  }
+
+  if (!project) return null
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="sr-only">
+            Detalles del proyecto: {project.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
             <div>
@@ -236,7 +262,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                     </h3>
                     <div className="bg-muted rounded-lg p-4">
                       <blockquote className="text-muted-foreground italic mb-4">
-                        "{project.testimonial.text}"
+                        &ldquo;{project.testimonial.text}&rdquo;
                       </blockquote>
                       <div className="flex items-center gap-3">
                         {project.testimonial.avatar && (
@@ -288,7 +314,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   )
 }

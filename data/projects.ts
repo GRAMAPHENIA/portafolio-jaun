@@ -1,6 +1,16 @@
 import type { Project } from "@/lib/types"
 import { getTechnologyByName } from "./technologies"
 
+// Helper function to safely get technology
+const getTech = (name: string) => {
+  const tech = getTechnologyByName(name)
+  if (!tech) {
+    console.warn(`Technology "${name}" not found`)
+    return { name, category: "tool" as const, color: "#666666" }
+  }
+  return tech
+}
+
 export const projects: Project[] = [
   {
     id: "1",
@@ -28,11 +38,11 @@ export const projects: Project[] = [
       }
     ],
     technologies: [
-      getTechnologyByName("Next.js")!,
-      getTechnologyByName("TypeScript")!,
-      getTechnologyByName("Tailwind CSS")!,
-      getTechnologyByName("MDX")!,
-      getTechnologyByName("Algolia")!
+      getTech("Next.js"),
+      getTech("TypeScript"),
+      getTech("Tailwind CSS"),
+      getTech("MDX"),
+      getTech("Algolia")
     ],
     url: "https://documentacion-de-casos-de-umbral.vercel.app/",
     github: "https://github.com/tu-usuario/documentacion-casos-umbral",
@@ -99,10 +109,10 @@ export const projects: Project[] = [
       }
     ],
     technologies: [
-      getTechnologyByName("React")!,
-      getTechnologyByName("Node.js")!,
-      getTechnologyByName("Socket.io")!,
-      getTechnologyByName("MongoDB")!
+      getTech("React"),
+      getTech("Node.js"),
+      getTech("Socket.io"),
+      getTech("MongoDB")
     ],
     url: "https://el-palacio-dom.vercel.app/",
     github: "https://github.com/example/tasks",
@@ -156,10 +166,10 @@ export const projects: Project[] = [
       }
     ],
     technologies: [
-      getTechnologyByName("Vue.js")!,
-      getTechnologyByName("D3.js")!,
-      getTechnologyByName("Python")!,
-      getTechnologyByName("FastAPI")!
+      getTech("Vue.js"),
+      getTech("D3.js"),
+      getTech("Python"),
+      getTech("FastAPI")
     ],
     url: "https://sesgos-cognitivos.vercel.app",
     github: "https://github.com/example/analytics",
@@ -221,10 +231,10 @@ export const projects: Project[] = [
       }
     ],
     technologies: [
-      getTechnologyByName("Next.js")!,
-      getTechnologyByName("Supabase")!,
-      getTechnologyByName("Tailwind CSS")!,
-      getTechnologyByName("Framer Motion")!
+      getTech("Next.js"),
+      getTech("Supabase"),
+      getTech("Tailwind CSS"),
+      getTech("Framer Motion")
     ],
     url: "https://hipersticion-web.vercel.app/",
     github: "https://github.com/example/learning",
@@ -277,10 +287,10 @@ export const projects: Project[] = [
       }
     ],
     technologies: [
-      getTechnologyByName("React")!,
-      getTechnologyByName("OpenAI API")!,
-      getTechnologyByName("Express")!,
-      getTechnologyByName("AWS")!
+      getTech("React"),
+      getTech("OpenAI API"),
+      getTech("Express"),
+      getTech("AWS")
     ],
     url: "https://example.com",
     github: "https://github.com/example/ai-content",
@@ -342,9 +352,9 @@ export const projects: Project[] = [
       }
     ],
     technologies: [
-      getTechnologyByName("React Native")!,
-      getTechnologyByName("Firebase")!,
-      getTechnologyByName("HealthKit")!
+      getTech("React Native"),
+      getTech("Firebase"),
+      getTech("HealthKit")
     ],
     url: "https://example.com",
     github: "https://github.com/example/fitness",
