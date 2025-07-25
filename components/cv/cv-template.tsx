@@ -299,13 +299,13 @@ export function CVTemplate({ format, className = "" }: CVTemplateProps) {
   }
 
   return (
-    <div className={`bg-white p-8 max-w-4xl mx-auto ${className}`} id="cv-template">
+    <div className={`bg-white text-black p-8 max-w-4xl mx-auto ${className}`}>
       {enabledSections.map((section) => {
         const renderer = sectionRenderers[section.id as keyof typeof sectionRenderers]
         return renderer ? (
           <div key={section.id}>
             {renderer()}
-            {section.order < enabledSections.length && <Separator className="my-6" />}
+            {section.order < enabledSections.length && <div className="border-b border-gray-200 my-6" />}
           </div>
         ) : null
       })}

@@ -3,15 +3,13 @@
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Download, FileText, Briefcase, Palette, Eye, Loader2 } from "lucide-react"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Download, FileText, Eye, Loader2, ArrowLeft, File, Palette, Grid3X3 } from "lucide-react"
 import { cvFormats, getCVFormatById } from "@/data/cv-formats"
 import { CVTemplate } from "./cv-template"
-import { usePDFGenerator, useDownloadTracking } from "@/hooks/use-pdf-generator"
+// import { usePDFGenerator } from "@/hooks/use-pdf-generator"
 import { toast } from "sonner"
+import Link from "next/link"
 
 interface CVDownloadProps {
   className?: string
@@ -20,64 +18,90 @@ interface CVDownloadProps {
 export function CVDownload({ className = "" }: CVDownloadProps) {
   const [selectedFormat, setSelectedFormat] = useState<string>("developer")
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const { generatePDF, isGenerating, error } = usePDFGenerator()
-  const { trackDownload, getDownloadCount } = useDownloadTracking()
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleDownload = async (formatId: string) => {
     const format = getCVFormatById(formatId)
     if (!format) return
 
+    setIsGenerating(true)
+    setError(null)
+
     try {
-      const filename = `CV_Jaun_Rojo_${format.name.replace(/\s+/g, '_')}.pdf`
-      
-      await generatePDF("cv-template", {
-        filename,
-        format: "a4",
-        orientation: "portrait",
-        quality: 0.95,
-        scale: 2
+      // Importar html2canvas dinámicamente para evitar problemas de SSR
+      const html2canvas = (await import('html2canvas')).default
+
+      const element = document.getElementById("cv-template")
+      if (!element) {
+        throw new Error("Elemento CV no encontrado")
+      }
+
+      // Hacer visible temporalmente el elemento
+      const originalDisplay = element.style.display
+      const originalVisibility = element.style.visibility
+      const originalPosition = element.style.position
+
+      element.style.display = "block"
+      element.style.visibility = "visible"
+      element.style.position = "absolute"
+      element.style.left = "-9999px"
+      element.style.top = "0"
+
+      // Generar canvas
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        width: 800,
+        height: 1200,
       })
 
-      // Track download
-      trackDownload(formatId)
-      
+      // Restaurar estilos
+      element.style.display = originalDisplay
+      element.style.visibility = originalVisibility
+      element.style.position = originalPosition
+      element.style.left = ""
+      element.style.top = ""
+
+      // Crear enlace de descarga
+      const link = document.createElement('a')
+      link.download = `CV_Jaun_Rojo_${format.name.replace(/\s+/g, '_')}.png`
+      link.href = canvas.toDataURL('image/png', 0.95)
+
+      // Descargar
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // Track download (optional analytics)
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("event", "cv_download", {
+          event_category: "engagement",
+          event_label: formatId,
+          value: 1
+        })
+      }
+
       toast.success("CV descargado correctamente", {
-        description: `${format.name} guardado como ${filename}`
+        description: `${format.name} guardado como imagen PNG`
       })
 
     } catch (err) {
       console.error("Error downloading CV:", err)
+      setError(err instanceof Error ? err.message : "Error desconocido")
       toast.error("Error al descargar el CV", {
         description: "Por favor, inténtalo de nuevo"
       })
+    } finally {
+      setIsGenerating(false)
     }
   }
 
-  const getFormatIcon = (template: string) => {
-    switch (template) {
-      case "developer":
-        return <FileText className="w-5 h-5" />
-      case "executive":
-        return <Briefcase className="w-5 h-5" />
-      case "creative":
-        return <Palette className="w-5 h-5" />
-      default:
-        return <FileText className="w-5 h-5" />
-    }
-  }
 
-  const getFormatColor = (template: string) => {
-    switch (template) {
-      case "developer":
-        return "bg-blue-50 border-blue-200 hover:bg-blue-100"
-      case "executive":
-        return "bg-purple-50 border-purple-200 hover:bg-purple-100"
-      case "creative":
-        return "bg-orange-50 border-orange-200 hover:bg-orange-100"
-      default:
-        return "bg-gray-50 border-gray-200 hover:bg-gray-100"
-    }
-  }
+
+
 
   if (error) {
     toast.error("Error en el generador de PDF", {
@@ -86,183 +110,188 @@ export function CVDownload({ className = "" }: CVDownloadProps) {
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Descargar CV</h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Elige el formato que mejor se adapte a tus necesidades. Cada versión está optimizada 
-          para diferentes tipos de oportunidades profesionales.
-        </p>
+    <div className={className}>
+      {/* Botón de regreso al inicio */}
+      <div className="mb-6">
+        <Link href="/">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hover:bg-accent/20 transition-colors duration-300"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Volver al inicio
+          </Button>
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {cvFormats.map((format) => (
-          <Card 
-            key={format.id} 
-            className={`cursor-pointer transition-all duration-200 ${getFormatColor(format.template)}`}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {getFormatIcon(format.template)}
-                  <CardTitle className="text-lg">{format.name}</CardTitle>
-                </div>
-                <Badge variant="secondary" className="text-xs">
-                  {getDownloadCount(format.id)} descargas
-                </Badge>
+      <div className="max-w-lg mx-auto">
+        <Card className="border-border shadow-sm">
+          <CardHeader className="text-center pb-4">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center">
+                <FileText className="w-8 h-8 text-accent" />
               </div>
-              <CardDescription className="text-sm">
-                {format.description}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="pt-0">
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-1">
-                  {format.sections.filter(s => s.enabled).slice(0, 4).map((section) => (
-                    <Badge key={section.id} variant="outline" className="text-xs">
-                      {section.name}
-                    </Badge>
-                  ))}
-                  {format.sections.filter(s => s.enabled).length > 4 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{format.sections.filter(s => s.enabled).length - 4} más
-                    </Badge>
-                  )}
-                </div>
-                
-                <Separator />
-                
-                <div className="flex gap-2">
-                  <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => setSelectedFormat(format.id)}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Vista Previa
-                      </Button>
-                    </DialogTrigger>
-                    
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Vista Previa - {format.name}</DialogTitle>
-                        <DialogDescription>
-                          Previsualización del CV en formato {format.name}
-                        </DialogDescription>
-                      </DialogHeader>
-                      
-                      <div className="mt-4">
-                        <CVTemplate format={format} className="scale-75 origin-top" />
+            </div>
+            <CardTitle className="text-3xl font-bold mb-2">Jaun Rojo</CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
+              Desarrollador Web
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Stats destacadas */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="space-y-2">
+                <div className="text-4xl font-extrabold text-accent">4+</div>
+                <div className="text-sm text-muted-foreground font-medium">Años</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-4xl font-extrabold text-accent">15+</div>
+                <div className="text-sm text-muted-foreground font-medium">Proyectos</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-4xl font-extrabold text-accent">10+</div>
+                <div className="text-sm text-muted-foreground font-medium">Tecnologías</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-4xl font-extrabold text-accent">100%</div>
+                <div className="text-sm text-muted-foreground font-medium">Remoto</div>
+              </div>
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-3">
+              <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setSelectedFormat("developer")}
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Previsualizar
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent className="max-w-6xl h-[90vh] flex flex-col p-0 gap-0">
+                  {/* DialogTitle requerido para accesibilidad - visualmente oculto */}
+                  <DialogTitle className="sr-only">Vista Previa del Curriculum Vitae de Jaun Rojo</DialogTitle>
+
+                  {/* Header fijo */}
+                  <div className="flex-shrink-0 bg-background border-b border-border p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-accent" />
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-semibold">Vista Previa del CV</h2>
+                          <p className="text-xs text-muted-foreground">Jaun Rojo - Desarrollador Full Stack</p>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-end gap-2 mt-4">
-                        <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>
-                          Cerrar
-                        </Button>
-                        <Button 
-                          onClick={() => handleDownload(format.id)}
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownload("developer")}
                           disabled={isGenerating}
                         >
                           {isGenerating ? (
                             <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                               Generando...
                             </>
                           ) : (
                             <>
-                              <Download className="w-4 h-4 mr-2" />
-                              Descargar PDF
+                              <Download className="w-4 h-4 mr-1" />
+                              Descargar
                             </>
                           )}
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsPreviewOpen(false)}
+                        >
+                          Cerrar
+                        </Button>
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => handleDownload(format.id)}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                        Generando...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4 mr-1" />
-                        Descargar
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                    </div>
+                  </div>
+
+                  {/* Área de scroll del CV */}
+                  <div className="flex-1 overflow-y-auto bg-muted/10 p-6">
+                    <div className="flex justify-center">
+                      <div className="bg-white rounded-lg shadow-lg border w-full max-w-4xl">
+                        <CVTemplate
+                          format={cvFormats[0]}
+                          className="!max-w-full !mx-0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer fijo */}
+                  <div className="flex-shrink-0 border-t border-border bg-muted/20 px-4 py-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <File className="w-3 h-3" />
+                          <span>A4</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Palette className="w-3 h-3" />
+                          <span>Profesional</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Grid3X3 className="w-3 h-3" />
+                          <span>{cvFormats[0]?.sections?.filter(s => s.enabled).length || 8} secciones</span>
+                        </div>
+                      </div>
+                      <span>
+                        {new Date().toLocaleDateString('es-ES', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Button
+                className="flex-1"
+                onClick={() => handleDownload("developer")}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generando imagen...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Descargar PNG
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Quick Download Section */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Download className="w-5 h-5" />
-            Descarga Rápida
-          </CardTitle>
-          <CardDescription>
-            Selecciona un formato y descarga directamente
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Select value={selectedFormat} onValueChange={setSelectedFormat}>
-              <SelectTrigger className="sm:w-64">
-                <SelectValue placeholder="Selecciona un formato" />
-              </SelectTrigger>
-              <SelectContent>
-                {cvFormats.map((format) => (
-                  <SelectItem key={format.id} value={format.id}>
-                    <div className="flex items-center gap-2">
-                      {getFormatIcon(format.template)}
-                      {format.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Button 
-              onClick={() => handleDownload(selectedFormat)}
-              disabled={isGenerating || !selectedFormat}
-              className="sm:w-auto"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generando PDF...
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 mr-2" />
-                  Descargar CV
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Hidden CV Template for PDF Generation */}
-      <div className="hidden">
+      <div style={{ position: 'absolute', left: '-9999px', top: '0', width: '800px' }}>
         {selectedFormat && (
-          <CVTemplate format={getCVFormatById(selectedFormat)!} />
+          <div id="cv-template">
+            <CVTemplate format={getCVFormatById(selectedFormat)!} className="" />
+          </div>
         )}
       </div>
     </div>

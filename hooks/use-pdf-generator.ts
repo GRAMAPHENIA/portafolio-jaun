@@ -43,28 +43,59 @@ export function usePDFGenerator(): PDFGeneratorResult {
         throw new Error(`Elemento con ID "${elementId}" no encontrado`)
       }
 
+      // Hacer visible temporalmente el elemento si está oculto
+      const originalDisplay = element.style.display
+      const originalVisibility = element.style.visibility
+      const originalPosition = element.style.position
+      
+      element.style.display = "block"
+      element.style.visibility = "visible"
+      element.style.position = "absolute"
+      element.style.left = "-9999px"
+      element.style.top = "0"
+
       // Configurar opciones de html2canvas
       const canvas = await html2canvas(element, {
-        scale: scale,
+        scale: Math.min(scale, 3), // Limitar el scale máximo
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
-        width: element.scrollWidth,
-        height: element.scrollHeight,
+        width: element.scrollWidth || 800,
+        height: element.scrollHeight || 1200,
         onclone: (clonedDoc) => {
           // Asegurar que los estilos se apliquen correctamente
           const clonedElement = clonedDoc.getElementById(elementId)
           if (clonedElement) {
+            clonedElement.style.display = "block"
+            clonedElement.style.visibility = "visible"
             clonedElement.style.transform = "scale(1)"
             clonedElement.style.transformOrigin = "top left"
+            clonedElement.style.position = "static"
           }
         }
       })
 
+      // Restaurar estilos originales
+      element.style.display = originalDisplay
+      element.style.visibility = originalVisibility
+      element.style.position = originalPosition
+      element.style.left = ""
+      element.style.top = ""
+
+      // Validar dimensiones del canvas
+      if (canvas.width === 0 || canvas.height === 0) {
+        throw new Error("El elemento no tiene dimensiones válidas para generar PDF")
+      }
+
       // Configurar dimensiones del PDF
       const imgWidth = format === "a4" ? 210 : 216 // mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      const imgHeight = Math.max((canvas.height * imgWidth) / canvas.width, 10) // Mínimo 10mm
+
+      // Validar que las dimensiones sean números válidos
+      if (!isFinite(imgWidth) || !isFinite(imgHeight) || imgWidth <= 0 || imgHeight <= 0) {
+        throw new Error("Dimensiones de imagen inválidas para PDF")
+      }
 
       // Crear PDF
       const pdf = new jsPDF({
@@ -78,9 +109,12 @@ export function usePDFGenerator(): PDFGeneratorResult {
       let heightLeft = imgHeight
       let position = 0
 
+      // Validar calidad
+      const validQuality = Math.min(Math.max(quality, 0.1), 1.0)
+
       // Agregar la primera página
       pdf.addImage(
-        canvas.toDataURL("image/jpeg", quality),
+        canvas.toDataURL("image/jpeg", validQuality),
         "JPEG",
         0,
         position,
@@ -97,7 +131,7 @@ export function usePDFGenerator(): PDFGeneratorResult {
         position = heightLeft - imgHeight
         pdf.addPage()
         pdf.addImage(
-          canvas.toDataURL("image/jpeg", quality),
+          canvas.toDataURL("image/jpeg", validQuality),
           "JPEG",
           0,
           position,

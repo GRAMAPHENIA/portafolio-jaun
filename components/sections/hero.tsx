@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { ArrowDown } from "lucide-react";
-import { CVDownloadButton } from "@/components/cv/cv-download-button";
 
 export function Hero() {
   const handleScrollToProjects = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -52,17 +51,9 @@ export function Hero() {
             Exportación de estados que no terminan de resolverse.
           </p>
           
-          <span className="font-body text-xs text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed block">
+          <span className="font-body text-xs text-muted-foreground mb-16 max-w-md mx-auto leading-relaxed block">
             Commit de advertencia.
           </span>
-
-          <div className="flex justify-center mb-16">
-            <CVDownloadButton 
-              variant="outline" 
-              size="lg"
-              className="hover:bg-accent/10 hover:border-accent/30 transition-all duration-300"
-            />
-          </div>
 
           <div className="w-12 h-px bg-muted-foreground/30 mx-auto"></div>
         </div>
