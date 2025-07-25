@@ -45,7 +45,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
 
   if (!project || !isVisible) return null
 
-  const images = project.gallery || [project.image]
+  const images = project.gallery?.map(item => item.url) || [project.image]
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length)
@@ -171,14 +171,14 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {project.technologies.map((tech) => {
-                      const Icon = getTechIcon(tech)
+                      const Icon = getTechIcon(tech.name)
                       return (
                         <div
-                          key={tech}
+                          key={tech.name}
                           className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg"
                         >
                           <Icon className="w-4 h-4" />
-                          <span className="text-sm font-medium">{tech}</span>
+                          <span className="text-sm font-medium">{tech.name}</span>
                         </div>
                       )
                     })}

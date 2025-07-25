@@ -51,17 +51,17 @@ export function ProjectCard({ project, className = "", onViewDetails }: ProjectC
 
           <div className="flex flex-wrap gap-2 mb-6">
             {project.technologies.slice(0, isLarge ? 5 : 3).map((tech) => {
-              const Icon = getTechIcon(tech);
+              const Icon = getTechIcon(tech.name);
               return (
                 <div
-                  key={tech}
+                  key={tech.name}
                   className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-zinc-950/10 backdrop-blur-sm rounded-full border border-foreground/10 hover:bg-accent/10 hover:border-accent/30 transition-colors duration-200"
-                  title={tech}
+                  title={tech.name}
                 >
                   <Icon className="w-3 h-3 text-foreground/80" />
                   {isLarge && (
                     <span className="font-body text-xs text-foreground/80">
-                      {tech}
+                      {tech.name}
                     </span>
                   )}
                 </div>
