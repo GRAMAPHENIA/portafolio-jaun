@@ -9,7 +9,8 @@ El enfoque es evolutivo: mejoramos lo existente sin romper la funcionalidad actu
 ## Architecture
 
 ### Current Foundation (Maintained)
-```
+
+```text
 portfolio-personal-jaun/
 ├── app/                    # Next.js App Router
 ├── components/
@@ -23,7 +24,8 @@ portfolio-personal-jaun/
 ```
 
 ### Enhanced Architecture
-```
+
+```text
 portfolio-personal-jaun/
 ├── app/
 │   ├── (routes)/
@@ -53,6 +55,7 @@ portfolio-personal-jaun/
 ### 1. Animation System
 
 **Framer Motion Integration**
+
 ```typescript
 // lib/animations.ts
 export const fadeInUp = {
@@ -78,6 +81,7 @@ interface AnimatedSectionProps {
 ```
 
 **Loading States**
+
 ```typescript
 // components/ui/loading-screen.tsx
 interface LoadingScreenProps {
@@ -95,6 +99,7 @@ interface SkeletonLoaderProps {
 ### 2. Enhanced Project System
 
 **Project Detail Modal**
+
 ```typescript
 // lib/types.ts (enhanced)
 interface Project {
@@ -128,6 +133,7 @@ interface ProjectMetrics {
 ```
 
 **Project Components**
+
 ```typescript
 // components/projects/project-modal.tsx
 interface ProjectModalProps {
@@ -153,6 +159,7 @@ interface ProjectCarouselProps {
 ### 3. Blog System
 
 **Content Management**
+
 ```typescript
 // lib/mdx.ts
 interface BlogPost {
@@ -178,6 +185,7 @@ interface Author {
 ```
 
 **Blog Components**
+
 ```typescript
 // components/blog/blog-card.tsx
 interface BlogCardProps {
@@ -200,6 +208,7 @@ interface ReadingProgressProps {
 ### 4. Skills & Experience System
 
 **Skills Visualization**
+
 ```typescript
 // lib/types.ts
 interface Skill {
@@ -225,6 +234,7 @@ interface Experience {
 ```
 
 **Skills Components**
+
 ```typescript
 // components/skills/skill-radar.tsx
 interface SkillRadarProps {
@@ -242,6 +252,7 @@ interface TimelineProps {
 ### 5. Contact System
 
 **Contact Form**
+
 ```typescript
 // lib/contact.ts
 interface ContactForm {
@@ -263,6 +274,7 @@ interface ContactResponse {
 ```
 
 **Contact Components**
+
 ```typescript
 // components/contact/contact-form.tsx
 interface ContactFormProps {
@@ -280,6 +292,7 @@ interface SchedulingWidgetProps {
 ### 6. SEO & Analytics System
 
 **SEO Enhancement**
+
 ```typescript
 // lib/seo.ts
 interface SEOData {
@@ -299,6 +312,7 @@ interface StructuredData {
 ```
 
 **Analytics Integration**
+
 ```typescript
 // lib/analytics.ts
 interface AnalyticsEvent {
@@ -318,6 +332,7 @@ interface PageView {
 ## Data Models
 
 ### Enhanced Project Model
+
 ```typescript
 interface EnhancedProject extends Project {
   // Performance metrics
@@ -352,6 +367,7 @@ interface EnhancedProject extends Project {
 ```
 
 ### User Preferences Model
+
 ```typescript
 interface UserPreferences {
   theme: "light" | "dark" | "system"
@@ -365,6 +381,7 @@ interface UserPreferences {
 ```
 
 ### Content Management Model
+
 ```typescript
 interface ContentConfig {
   hero: {
@@ -394,6 +411,7 @@ interface ContentConfig {
 ## Error Handling
 
 ### Client-Side Error Boundaries
+
 ```typescript
 // components/error-boundary.tsx
 interface ErrorBoundaryProps {
@@ -410,6 +428,7 @@ interface ErrorFallbackProps {
 ```
 
 ### API Error Handling
+
 ```typescript
 // lib/api-client.ts
 interface APIError {
@@ -427,6 +446,7 @@ interface APIResponse<T> {
 ```
 
 ### Form Validation
+
 ```typescript
 // lib/validation.ts
 import { z } from "zod"
@@ -445,6 +465,7 @@ export const contactFormSchema = z.object({
 ## Testing Strategy
 
 ### Component Testing
+
 ```typescript
 // __tests__/components/project-card.test.tsx
 describe("ProjectCard", () => {
@@ -463,6 +484,7 @@ describe("ProjectCard", () => {
 ```
 
 ### Integration Testing
+
 ```typescript
 // __tests__/pages/blog.test.tsx
 describe("Blog Page", () => {
@@ -481,6 +503,7 @@ describe("Blog Page", () => {
 ```
 
 ### Performance Testing
+
 ```typescript
 // __tests__/performance/lighthouse.test.ts
 describe("Performance", () => {
@@ -494,6 +517,7 @@ describe("Performance", () => {
 ```
 
 ### Accessibility Testing
+
 ```typescript
 // __tests__/accessibility/a11y.test.tsx
 describe("Accessibility", () => {
@@ -509,18 +533,21 @@ describe("Accessibility", () => {
 ## Technical Implementation Details
 
 ### Animation Performance
+
 - Use `transform` and `opacity` for animations (GPU accelerated)
 - Implement `will-change` CSS property strategically
 - Use `IntersectionObserver` for scroll-triggered animations
 - Implement reduced motion preferences
 
 ### Bundle Optimization
+
 - Code splitting by route and feature
 - Dynamic imports for heavy components
 - Image optimization with Next.js Image component
 - Font optimization with variable fonts
 
 ### SEO Implementation
+
 - Dynamic meta tags per page
 - JSON-LD structured data
 - XML sitemap generation
@@ -528,6 +555,7 @@ describe("Accessibility", () => {
 - Canonical URLs
 
 ### Performance Monitoring
+
 - Core Web Vitals tracking
 - Real User Monitoring (RUM)
 - Error tracking and reporting
