@@ -78,12 +78,18 @@
     - Add multiple CV formats (developer, executive, etc.)
     - _Requirements: 2.4_
 
-- [ ] 5. Develop blog system for technical content
-  - [ ] 5.1 Setup MDX content system and file structure
+- [-] 5. Develop blog system for technical content
+
+
+  - [x] 5.1 Setup MDX content system and file structure
+
+
     - Configure MDX processing with syntax highlighting
     - Create content directory structure for blog posts
     - Implement frontmatter parsing for metadata
     - _Requirements: 4.1, 4.3_
+
+
 
   - [ ] 5.2 Build blog listing and individual post pages
     - Create blog post card components with reading time

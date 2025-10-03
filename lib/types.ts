@@ -184,3 +184,47 @@ export interface CVSection {
   enabled: boolean
   order: number
 }
+
+// Blog Types
+export interface BlogPost {
+  slug: string
+  title: string
+  description: string
+  content: string
+  publishedAt: Date
+  updatedAt?: Date
+  tags: string[]
+  category: string
+  readingTime: {
+    text: string
+    minutes: number
+    time: number
+    words: number
+  }
+  featured: boolean
+  author: BlogAuthor
+}
+
+export interface BlogPostMeta extends Omit<BlogPost, 'content'> {}
+
+export interface BlogAuthor {
+  name: string
+  avatar: string
+  bio: string
+  social: Array<{
+    platform: string
+    url: string
+  }>
+}
+
+export interface BlogFilter {
+  categories: string[]
+  tags: string[]
+  featured?: boolean
+  search?: string
+}
+
+export interface BlogSort {
+  field: "title" | "publishedAt" | "updatedAt" | "readingTime"
+  direction: "asc" | "desc"
+}

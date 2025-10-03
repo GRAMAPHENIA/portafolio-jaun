@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Home, FolderOpen, Mail, Menu, X, FileText } from "lucide-react";
+import { Home, FolderOpen, Mail, Menu, X, FileText, BookOpen } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
@@ -14,6 +14,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { icon: Home, href: "#inicio", label: "Inicio" },
   { icon: FolderOpen, href: "#proyectos", label: "Proyectos" },
+  { icon: BookOpen, href: "/blog", label: "Blog", external: true },
   { icon: FileText, href: "/cv", label: "CV", external: true },
   { icon: Mail, href: "#contacto", label: "Contacto" },
 ];

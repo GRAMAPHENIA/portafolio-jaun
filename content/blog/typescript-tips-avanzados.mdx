@@ -1,0 +1,446 @@
+---
+title: "TypeScript Tips Avanzados para Desarrolladores React"
+description: "Descubre técnicas avanzadas de TypeScript que mejorarán tu código React y te harán más productivo como desarrollador."
+publishedAt: "2024-12-05"
+updatedAt: "2024-12-05"
+category: "TypeScript"
+tags: ["TypeScript", "React", "JavaScript", "Types"]
+featured: true
+author:
+  name: "Jaun Rojo"
+  avatar: "/placeholder-user.jpg"
+  bio: "Desarrollador Full Stack especializado en React y Next.js"
+  social:
+    - platform: "GitHub"
+      url: "https://github.com/juanrojo"
+    - platform: "LinkedIn"
+      url: "https://linkedin.com/in/juanrojo"
+---
+
+# TypeScript Tips Avanzados para Desarrolladores React
+
+TypeScript ha revolucionado el desarrollo de aplicaciones React, proporcionando type safety y mejor experiencia de desarrollo. En este artículo, exploraremos técnicas avanzadas que todo desarrollador React debería conocer.
+
+## Utility Types Esenciales
+
+### 1. Pick y Omit
+
+```typescript
+interface User {
+  id: number
+  name: string
+  email: string
+  password: string
+  createdAt: Date
+}
+
+// Seleccionar solo campos específicos
+type PublicUser = Pick<User, 'id' | 'name' | 'email'>
+
+// Omitir campos sensibles
+type UserWithoutPassword = Omit<User, 'password'>
+
+// Útil para props de componentes
+interface UserCardProps {
+  user: PublicUser
+  onEdit: (user: UserWithoutPassword) => void
+}
+```
+
+### 2. Partial y Required
+
+```typescript
+// Hacer todos los campos opcionales
+type PartialUser = Partial<User>
+
+// Hacer todos los campos requeridos
+type RequiredUser = Required<User>
+
+// Combinaciones útiles
+type UserUpdate = Partial<Pick<User, 'name' | 'email'>>
+
+function updateUser(id: number, updates: UserUpdate) {
+  // Implementación
+}
+```
+
+## Tipos Condicionales Avanzados
+
+### 1. Conditional Types
+
+```typescript
+type ApiResponse<T> = T extends string
+  ? { message: T }
+  : T extends number
+  ? { count: T }
+  : { data: T }
+
+// Uso
+type StringResponse = ApiResponse<string>  // { message: string }
+type NumberResponse = ApiResponse<number>  // { count: number }
+type ObjectResponse = ApiResponse<User>    // { data: User }
+```
+
+### 2. Template Literal Types
+
+```typescript
+type EventName = 'click' | 'focus' | 'blur'
+type ElementType = 'button' | 'input' | 'div'
+
+// Generar combinaciones automáticamente
+type EventHandler = `on${Capitalize<EventName>}`
+type ElementClass = `${ElementType}-${string}`
+
+// Uso en componentes
+interface ButtonProps {
+  onClick?: () => void
+  onFocus?: () => void
+  onBlur?: () => void
+  className?: ElementClass
+}
+```
+
+## Tipos para Componentes React
+
+### 1. Componentes Genéricos
+
+```typescript
+interface ListProps<T> {
+  items: T[]
+  renderItem: (item: T, index: number) => React.ReactNode
+  keyExtractor: (item: T) => string | number
+}
+
+function List<T>({ items, renderItem, keyExtractor }: ListProps<T>) {
+  return (
+    <ul>
+      {items.map((item, index) => (
+        <li key={keyExtractor(item)}>
+          {renderItem(item, index)}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// Uso
+<List
+  items={users}
+  renderItem={(user) => <span>{user.name}</span>}
+  keyExtractor={(user) => user.id}
+/>
+```
+
+### 2. Props con Discriminated Unions
+
+```typescript
+interface BaseButtonProps {
+  children: React.ReactNode
+  disabled?: boolean
+}
+
+interface PrimaryButtonProps extends BaseButtonProps {
+  variant: 'primary'
+  color: 'blue' | 'green' | 'red'
+}
+
+interface SecondaryButtonProps extends BaseButtonProps {
+  variant: 'secondary'
+  outline?: boolean
+}
+
+type ButtonProps = PrimaryButtonProps | SecondaryButtonProps
+
+function Button(props: ButtonProps) {
+  if (props.variant === 'primary') {
+    // TypeScript sabe que props tiene la propiedad 'color'
+    return <button className={`btn-${props.color}`}>{props.children}</button>
+  }
+  
+  // TypeScript sabe que props tiene la propiedad 'outline'
+  return (
+    <button className={props.outline ? 'btn-outline' : 'btn-secondary'}>
+      {props.children}
+    </button>
+  )
+}
+```
+
+### 3. Ref Forwarding con Tipos
+
+```typescript
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  error?: string
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, ...props }, ref) => {
+    return (
+      <div>
+        <label>{label}</label>
+        <input ref={ref} {...props} />
+        {error && <span className="error">{error}</span>}
+      </div>
+    )
+  }
+)
+
+Input.displayName = 'Input'
+```
+
+## Hooks Tipados
+
+### 1. Custom Hooks con Tipos Genéricos
+
+```typescript
+interface UseApiOptions<T> {
+  url: string
+  initialData?: T
+  dependencies?: React.DependencyList
+}
+
+interface UseApiReturn<T> {
+  data: T | null
+  loading: boolean
+  error: string | null
+  refetch: () => void
+}
+
+function useApi<T>({ url, initialData, dependencies = [] }: UseApiOptions<T>): UseApiReturn<T> {
+  const [data, setData] = useState<T | null>(initialData || null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const response = await fetch(url)
+      const result = await response.json()
+      setData(result)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoading(false)
+    }
+  }, [url])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData, ...dependencies])
+
+  return { data, loading, error, refetch: fetchData }
+}
+
+// Uso
+const { data: users, loading, error } = useApi<User[]>({
+  url: '/api/users'
+})
+```
+
+### 2. useReducer Tipado
+
+```typescript
+interface State {
+  count: number
+  loading: boolean
+  error: string | null
+}
+
+type Action =
+  | { type: 'INCREMENT' }
+  | { type: 'DECREMENT' }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null }
+
+function counterReducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { ...state, count: state.count + 1 }
+    case 'DECREMENT':
+      return { ...state, count: state.count - 1 }
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload }
+    case 'SET_ERROR':
+      return { ...state, error: action.payload }
+    default:
+      return state
+  }
+}
+
+function useCounter() {
+  const [state, dispatch] = useReducer(counterReducer, {
+    count: 0,
+    loading: false,
+    error: null
+  })
+
+  return {
+    ...state,
+    increment: () => dispatch({ type: 'INCREMENT' }),
+    decrement: () => dispatch({ type: 'DECREMENT' }),
+    setLoading: (loading: boolean) => dispatch({ type: 'SET_LOADING', payload: loading }),
+    setError: (error: string | null) => dispatch({ type: 'SET_ERROR', payload: error })
+  }
+}
+```
+
+## Tipos para Context API
+
+```typescript
+interface AuthContextType {
+  user: User | null
+  login: (email: string, password: string) => Promise<void>
+  logout: () => void
+  loading: boolean
+}
+
+const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
+
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
+
+interface AuthProviderProps {
+  children: React.ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const login = async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      const userData = await response.json()
+      setUser(userData)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const logout = () => {
+    setUser(null)
+  }
+
+  const value: AuthContextType = {
+    user,
+    login,
+    logout,
+    loading
+  }
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+```
+
+## Técnicas Avanzadas
+
+### 1. Mapped Types
+
+```typescript
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+}
+
+type Setters<T> = {
+  [K in keyof T as `set${Capitalize<string & K>}`]: (value: T[K]) => void
+}
+
+type UserGetters = Getters<User>
+// {
+//   getId: () => number
+//   getName: () => string
+//   getEmail: () => string
+// }
+
+type UserSetters = Setters<User>
+// {
+//   setId: (value: number) => void
+//   setName: (value: string) => void
+//   setEmail: (value: string) => void
+// }
+```
+
+### 2. Type Guards
+
+```typescript
+function isUser(obj: any): obj is User {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    typeof obj.id === 'number' &&
+    typeof obj.name === 'string' &&
+    typeof obj.email === 'string'
+  )
+}
+
+function processUserData(data: unknown) {
+  if (isUser(data)) {
+    // TypeScript sabe que data es de tipo User
+    console.log(data.name)
+    console.log(data.email)
+  }
+}
+```
+
+## Configuración Avanzada
+
+### tsconfig.json Optimizado
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/types/*": ["./src/types/*"]
+    }
+  },
+  "include": [
+    "src",
+    "next-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+```
+
+## Conclusión
+
+TypeScript ofrece herramientas poderosas para crear aplicaciones React más robustas y mantenibles. Estas técnicas avanzadas te ayudarán a aprovechar al máximo el sistema de tipos y crear código más seguro y expresivo.
+
+¿Cuáles de estas técnicas ya utilizas en tus proyectos? ¿Hay alguna que te gustaría explorar más?

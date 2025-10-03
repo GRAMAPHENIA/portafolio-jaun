@@ -1,0 +1,148 @@
+---
+title: "Introducción a Next.js 15: Nuevas Características y Mejoras"
+description: "Explora las nuevas características de Next.js 15, incluyendo el App Router mejorado, Server Components y optimizaciones de rendimiento."
+publishedAt: "2024-12-15"
+updatedAt: "2024-12-15"
+category: "Frontend"
+tags: ["Next.js", "React", "JavaScript", "Web Development"]
+featured: true
+author:
+  name: "Jaun Rojo"
+  avatar: "/placeholder-user.jpg"
+  bio: "Desarrollador Full Stack especializado en React y Next.js"
+  social:
+    - platform: "GitHub"
+      url: "https://github.com/juanrojo"
+    - platform: "LinkedIn"
+      url: "https://linkedin.com/in/juanrojo"
+---
+
+# Introducción a Next.js 15: Nuevas Características y Mejoras
+
+Next.js 15 marca un hito importante en el desarrollo de aplicaciones React, introduciendo mejoras significativas en rendimiento, experiencia de desarrollador y nuevas características que simplifican la creación de aplicaciones web modernas.
+
+## ¿Qué es Next.js 15?
+
+Next.js 15 es la última versión del popular framework de React desarrollado por Vercel. Esta versión se centra en:
+
+- **Mejor rendimiento**: Optimizaciones en el bundling y rendering
+- **App Router estable**: El nuevo sistema de routing basado en el sistema de archivos
+- **Server Components mejorados**: Mejor integración entre cliente y servidor
+- **Turbopack**: El nuevo bundler ultra-rápido
+
+## Principales Características
+
+### 1. App Router Mejorado
+
+El App Router de Next.js 15 ofrece una experiencia más intuitiva:
+
+```typescript
+// app/blog/[slug]/page.tsx
+interface PageProps {
+  params: { slug: string }
+}
+
+export default function BlogPost({ params }: PageProps) {
+  return (
+    <article>
+      <h1>Post: {params.slug}</h1>
+    </article>
+  )
+}
+```
+
+### 2. Server Components por Defecto
+
+Los Server Components son ahora el comportamiento por defecto:
+
+```tsx
+// Este componente se ejecuta en el servidor
+async function BlogList() {
+  const posts = await fetchPosts()
+  
+  return (
+    <div>
+      {posts.map(post => (
+        <BlogCard key={post.id} post={post} />
+      ))}
+    </div>
+  )
+}
+```
+
+### 3. Streaming y Suspense
+
+Mejor soporte para carga progresiva:
+
+```tsx
+import { Suspense } from 'react'
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Mi Blog</h1>
+      <Suspense fallback={<BlogSkeleton />}>
+        <BlogList />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+## Migración desde Versiones Anteriores
+
+### Pasos Básicos
+
+1. **Actualizar dependencias**:
+   ```bash
+   npm install next@15 react@latest react-dom@latest
+   ```
+
+2. **Migrar al App Router**:
+   - Mover páginas de `pages/` a `app/`
+   - Actualizar la estructura de archivos
+   - Adaptar el manejo de rutas
+
+3. **Actualizar configuración**:
+   ```javascript
+   // next.config.js
+   module.exports = {
+     experimental: {
+       appDir: true, // Ya no es necesario en v15
+     }
+   }
+   ```
+
+## Mejores Prácticas
+
+### Organización de Archivos
+
+```
+app/
+├── layout.tsx          # Layout raíz
+├── page.tsx           # Página principal
+├── blog/
+│   ├── layout.tsx     # Layout del blog
+│   ├── page.tsx       # Lista de posts
+│   └── [slug]/
+│       └── page.tsx   # Post individual
+└── api/
+    └── posts/
+        └── route.ts   # API route
+```
+
+### Optimización de Rendimiento
+
+- Usa Server Components para contenido estático
+- Implementa Client Components solo cuando sea necesario
+- Aprovecha el streaming para mejorar la percepción de velocidad
+
+## Conclusión
+
+Next.js 15 representa un gran paso adelante en el desarrollo web moderno. Sus mejoras en rendimiento, la estabilización del App Router y las nuevas características hacen que sea una excelente opción para proyectos de cualquier escala.
+
+¿Has probado Next.js 15 en tus proyectos? ¡Comparte tu experiencia en los comentarios!
+
+---
+
+*¿Te gustó este artículo? Sígueme para más contenido sobre desarrollo web y tecnologías modernas.*

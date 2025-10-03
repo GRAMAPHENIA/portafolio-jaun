@@ -1,0 +1,299 @@
+---
+title: "Optimización de Rendimiento en React: Técnicas Avanzadas"
+description: "Aprende técnicas avanzadas para optimizar el rendimiento de tus aplicaciones React, desde memoización hasta lazy loading."
+publishedAt: "2024-12-10"
+updatedAt: "2024-12-12"
+category: "Performance"
+tags: ["React", "Performance", "Optimization", "JavaScript"]
+featured: false
+author:
+  name: "Jaun Rojo"
+  avatar: "/placeholder-user.jpg"
+  bio: "Desarrollador Full Stack especializado en React y Next.js"
+  social:
+    - platform: "GitHub"
+      url: "https://github.com/juanrojo"
+    - platform: "LinkedIn"
+      url: "https://linkedin.com/in/juanrojo"
+---
+
+# Optimización de Rendimiento en React: Técnicas Avanzadas
+
+El rendimiento es crucial en las aplicaciones React modernas. En este artículo, exploraremos técnicas avanzadas para optimizar tus aplicaciones y ofrecer la mejor experiencia de usuario posible.
+
+## Fundamentos de Rendimiento en React
+
+Antes de profundizar en técnicas específicas, es importante entender cómo React maneja el rendimiento:
+
+- **Virtual DOM**: React utiliza un DOM virtual para minimizar manipulaciones costosas
+- **Reconciliación**: El proceso de comparar y actualizar componentes
+- **Batching**: Agrupación de actualizaciones de estado para reducir re-renders
+
+## Técnicas de Optimización
+
+### 1. React.memo para Componentes Funcionales
+
+```tsx
+import React from 'react'
+
+interface UserCardProps {
+  user: {
+    id: number
+    name: string
+    email: string
+  }
+}
+
+const UserCard = React.memo(({ user }: UserCardProps) => {
+  return (
+    <div className="user-card">
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+    </div>
+  )
+})
+
+// Comparación personalizada
+const UserCardOptimized = React.memo(({ user }: UserCardProps) => {
+  return (
+    <div className="user-card">
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+    </div>
+  )
+}, (prevProps, nextProps) => {
+  return prevProps.user.id === nextProps.user.id
+})
+```
+
+### 2. useMemo para Cálculos Costosos
+
+```tsx
+import { useMemo } from 'react'
+
+function ExpensiveComponent({ items }: { items: Item[] }) {
+  const expensiveValue = useMemo(() => {
+    return items.reduce((acc, item) => {
+      // Cálculo costoso
+      return acc + item.value * item.multiplier
+    }, 0)
+  }, [items])
+
+  return <div>Total: {expensiveValue}</div>
+}
+```
+
+### 3. useCallback para Funciones
+
+```tsx
+import { useCallback, useState } from 'react'
+
+function TodoList({ todos }: { todos: Todo[] }) {
+  const [filter, setFilter] = useState('')
+
+  const handleToggle = useCallback((id: number) => {
+    // Lógica para toggle
+    console.log('Toggle todo:', id)
+  }, [])
+
+  const filteredTodos = useMemo(() => {
+    return todos.filter(todo => 
+      todo.title.toLowerCase().includes(filter.toLowerCase())
+    )
+  }, [todos, filter])
+
+  return (
+    <div>
+      <input 
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        placeholder="Filtrar todos..."
+      />
+      {filteredTodos.map(todo => (
+        <TodoItem 
+          key={todo.id} 
+          todo={todo} 
+          onToggle={handleToggle}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+### 4. Lazy Loading de Componentes
+
+```tsx
+import { lazy, Suspense } from 'react'
+
+// Carga perezosa del componente
+const HeavyComponent = lazy(() => import('./HeavyComponent'))
+
+function App() {
+  return (
+    <div>
+      <h1>Mi Aplicación</h1>
+      <Suspense fallback={<div>Cargando...</div>}>
+        <HeavyComponent />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+### 5. Virtualización para Listas Grandes
+
+```tsx
+import { FixedSizeList as List } from 'react-window'
+
+interface ItemData {
+  items: string[]
+}
+
+const Row = ({ index, style, data }: {
+  index: number
+  style: React.CSSProperties
+  data: ItemData
+}) => (
+  <div style={style}>
+    Item {data.items[index]}
+  </div>
+)
+
+function VirtualizedList({ items }: { items: string[] }) {
+  return (
+    <List
+      height={600}
+      itemCount={items.length}
+      itemSize={35}
+      itemData={{ items }}
+    >
+      {Row}
+    </List>
+  )
+}
+```
+
+## Herramientas de Profiling
+
+### React DevTools Profiler
+
+```tsx
+import { Profiler } from 'react'
+
+function onRenderCallback(
+  id: string,
+  phase: 'mount' | 'update',
+  actualDuration: number,
+  baseDuration: number,
+  startTime: number,
+  commitTime: number
+) {
+  console.log('Profiler:', {
+    id,
+    phase,
+    actualDuration,
+    baseDuration
+  })
+}
+
+function App() {
+  return (
+    <Profiler id="App" onRender={onRenderCallback}>
+      <MyComponent />
+    </Profiler>
+  )
+}
+```
+
+## Optimización de Bundle
+
+### Code Splitting por Rutas
+
+```tsx
+import { Routes, Route } from 'react-router-dom'
+import { lazy } from 'react'
+
+const Home = lazy(() => import('./pages/Home'))
+const About = lazy(() => import('./pages/About'))
+const Contact = lazy(() => import('./pages/Contact'))
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+    </Routes>
+  )
+}
+```
+
+## Mejores Prácticas
+
+### 1. Evitar Objetos y Arrays Inline
+
+```tsx
+// ❌ Malo - crea nuevo objeto en cada render
+function BadComponent() {
+  return <MyComponent style={{ margin: 10 }} />
+}
+
+// ✅ Bueno - objeto estático
+const styles = { margin: 10 }
+function GoodComponent() {
+  return <MyComponent style={styles} />
+}
+```
+
+### 2. Usar Keys Apropiadas
+
+```tsx
+// ❌ Malo - índice como key
+{items.map((item, index) => (
+  <Item key={index} data={item} />
+))}
+
+// ✅ Bueno - ID único como key
+{items.map(item => (
+  <Item key={item.id} data={item} />
+))}
+```
+
+### 3. Optimizar Context
+
+```tsx
+// Separar contextos por frecuencia de cambio
+const UserContext = createContext()
+const ThemeContext = createContext()
+
+// En lugar de un contexto grande
+const AppContext = createContext()
+```
+
+## Métricas de Rendimiento
+
+### Core Web Vitals
+
+- **LCP (Largest Contentful Paint)**: < 2.5s
+- **FID (First Input Delay)**: < 100ms
+- **CLS (Cumulative Layout Shift)**: < 0.1
+
+### Herramientas de Medición
+
+```tsx
+// Medir performance con Web Vitals
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals'
+
+getCLS(console.log)
+getFID(console.log)
+getFCP(console.log)
+getLCP(console.log)
+getTTFB(console.log)
+```
+
+## Conclusión
+
+La optimización de rendimiento en React requiere un enfoque holístico que combine técnicas de código, herramientas de profiling y mejores prácticas. Recuerda siempre medir antes de optimizar y enfocarte en los cuellos de botella reales.
+
+¿Qué técnicas de optimización has encontrado más efectivas en tus proyectos?
